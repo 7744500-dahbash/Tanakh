@@ -3,99 +3,189 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>מנוע דילוגי אותיות בתנ"ך</title>
-  <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <title>מנוע דילוגי אותיות בתנ"ך | ELS Pro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600;700;800;900&family=Frank+Ruhl+Libre:wght@600;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-primary: #090d16; --bg-surface: #111827; --bg-card: #1f293d;
-      --border-color: #2d3b55; --accent-cyan: #38bdf8; --accent-gold: #f59e0b;
-      --accent-emerald: #10b981; --accent-rose: #f43f5e; --text-main: #f8fafc;
-      --text-muted: #94a3b8; --font-main: 'Assistant', sans-serif; --font-mono: 'JetBrains Mono', monospace;
+      --bg-dark: #07090e;
+      --bg-surface: #0f1422;
+      --bg-card: #161e31;
+      --bg-card-hover: #1e2842;
+      --border: #232f48;
+      --accent-cyan: #38bdf8;
+      --accent-cyan-glow: rgba(56, 189, 248, 0.35);
+      --gold: #f59e0b;
+      --gold-glow: rgba(245, 158, 11, 0.45);
+      --emerald: #10b981;
+      --rose: #f43f5e;
+      --fuchsia: #d946ef;
+      --fuchsia-glow: rgba(217, 70, 239, 0.5);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --font-ui: 'Rubik', sans-serif;
+      --font-torah: 'Frank Ruhl Libre', serif;
+      --font-mono: 'JetBrains Mono', monospace;
     }
+
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    body { background-color: var(--bg-primary); color: var(--text-main); font-family: var(--font-main); padding: 12px; }
-    .app-container { max-width: 650px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
-    .header { background: #111827; border: 1px solid var(--border-color); border-radius: 16px; padding: 16px; text-align: center; }
-    .header h1 { font-size: 22px; font-weight: 800; color: var(--accent-cyan); margin-bottom: 4px; }
-    .db-status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 700; margin-top: 8px; background: #0f172a; border: 1px solid var(--border-color); cursor: pointer; }
-    .status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent-rose); }
-    .status-dot.active { background: var(--accent-emerald); box-shadow: 0 0 8px var(--accent-emerald); }
-    .card { background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 16px; padding: 16px; }
-    .tab-bar { display: flex; gap: 8px; background: #111827; padding: 4px; border-radius: 12px; border: 1px solid var(--border-color); }
-    .tab-btn { flex: 1; padding: 10px 8px; border-radius: 8px; background: transparent; border: none; color: var(--text-muted); font-size: 13px; font-weight: 700; cursor: pointer; }
-    .tab-btn.active { background: var(--accent-cyan); color: #0f172a; }
+    body { background-color: var(--bg-dark); color: var(--text); font-family: var(--font-ui); min-height: 100vh; display: flex; flex-direction: column; padding: 12px; }
+    .app-container { width: 100%; max-width: 650px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+
+    /* Header */
+    .header { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 16px; padding: 16px; text-align: center; }
+    .header h1 { font-size: 22px; font-weight: 900; background: linear-gradient(135deg, #38bdf8, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 4px; }
+    .header p { font-size: 12px; color: var(--text-muted); }
+    .db-status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; margin-top: 8px; background: #090d16; border: 1px solid var(--border); cursor: pointer; }
+    .status-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--rose); }
+    .status-dot.active { background: var(--emerald); box-shadow: 0 0 10px var(--emerald); }
+
+    /* Tab Bar */
+    .tab-bar { display: flex; gap: 6px; background: #0b0f19; padding: 4px; border-radius: 12px; border: 1px solid var(--border); }
+    .tab-btn { flex: 1; padding: 10px 4px; border-radius: 8px; background: transparent; border: none; color: var(--text-muted); font-family: var(--font-ui); font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.15s; }
+    .tab-btn.active { background: var(--accent-cyan); color: #000; box-shadow: 0 2px 10px var(--accent-cyan-glow); }
+
+    /* Card */
+    .card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 16px; padding: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+
+    /* Inputs */
     .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
-    input[type="text"], input[type="number"] { width: 100%; background: #0b1120; border: 1.5px solid var(--border-color); border-radius: 10px; padding: 12px 14px; color: #fff; font-size: 16px; outline: none; }
+    label { font-size: 13px; font-weight: 700; color: #cbd5e1; }
+    input[type="text"], input[type="number"] { width: 100%; background: #080c16; border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 14px; color: #fff; font-family: var(--font-ui); font-size: 16px; font-weight: 600; outline: none; }
+    input:focus { border-color: var(--accent-cyan); box-shadow: 0 0 0 3px var(--accent-cyan-glow); }
     .input-row { display: flex; gap: 10px; }
     .input-row .form-group { flex: 1; }
-    .chips-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
-    .chip { background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); color: var(--accent-cyan); border-radius: 20px; padding: 4px 10px; font-size: 12px; font-weight: 600; cursor: pointer; }
-    .btn-primary { width: 100%; background: linear-gradient(135deg, #0284c7, #2563eb); color: white; border: none; border-radius: 12px; padding: 14px; font-size: 16px; font-weight: 800; cursor: pointer; }
-    .btn-secondary { background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main); padding: 8px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; }
+
+    /* Chips */
+    .chips-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+    .chip { background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.25); color: var(--accent-cyan); border-radius: 20px; padding: 4px 10px; font-size: 12px; font-weight: 600; cursor: pointer; }
+    .chip:active { background: var(--accent-cyan); color: #000; }
+
+    /* Buttons */
+    .btn-primary { width: 100%; background: linear-gradient(135deg, #0284c7, #2563eb); color: white; border: none; border-radius: 12px; padding: 14px; font-size: 16px; font-weight: 800; font-family: var(--font-ui); cursor: pointer; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.35); }
+    .btn-secondary { background: var(--bg-card); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; }
+
+    /* Progress */
     .progress-box { margin-top: 14px; display: none; }
     .progress-bar-bg { width: 100%; height: 8px; background: #1e293b; border-radius: 10px; overflow: hidden; margin-top: 6px; }
     .progress-bar-fill { width: 0%; height: 100%; background: var(--accent-cyan); transition: width 0.15s; }
+
+    /* Results */
     .results-wrapper { margin-top: 14px; display: flex; flex-direction: column; gap: 10px; max-height: 480px; overflow-y: auto; }
-    .result-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: center; }
-    .skip-badge { display: inline-block; padding: 2px 6px; border-radius: 6px; font-size: 12px; font-weight: 700; background: rgba(56, 189, 248, 0.2); color: var(--accent-cyan); }
-    .matrix-panel { display: none; background: #0f172a; border: 1px solid var(--border-color); border-radius: 16px; padding: 16px; }
-    .matrix-grid-scroll { overflow-x: auto; background: #050811; border-radius: 12px; padding: 14px; text-align: center; max-height: 380px; overflow-y: auto; }
-    .matrix-grid { display: inline-block; font-family: var(--font-mono); font-size: 16px; line-height: 1.7; white-space: pre; }
-    .m-char { display: inline-block; width: 24px; color: #475569; }
-    .m-char.target { color: #f59e0b; font-weight: 800; background: rgba(245, 158, 11, 0.3); border-radius: 4px; }
-    .context-panel { background: #090d16; border: 1px solid var(--border-color); border-radius: 12px; padding: 14px; margin-top: 14px; }
-    .verse-item { font-size: 14px; line-height: 1.8; color: #cbd5e1; margin-bottom: 8px; }
-    .verse-ref-tag { color: var(--accent-cyan); font-weight: 700; font-size: 12px; background: rgba(56,189,248,0.1); padding: 2px 6px; border-radius: 4px; margin-left: 6px; }
-    .verse-target-char { color: #f59e0b; font-weight: 800; background: rgba(245,158,11,0.25); padding: 1px 3px; border-radius: 4px; }
+    .result-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; }
+    .skip-badge { display: inline-block; padding: 2px 8px; border-radius: 6px; font-family: var(--font-mono); font-size: 12px; font-weight: 700; background: rgba(56, 189, 248, 0.15); color: var(--accent-cyan); }
+    .skip-badge.reverse { background: rgba(244, 63, 94, 0.15); color: var(--rose); }
+
+    /* Matrix Controls & Board */
+    .matrix-toolbar { background: #080c16; border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 10px; }
+    .matrix-tool-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+    .btn-pill-group { display: flex; gap: 5px; flex-wrap: wrap; }
+    .btn-pill { background: #161e31; border: 1px solid #2d3b55; color: #cbd5e1; padding: 5px 10px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; }
+    .btn-pill.active { background: var(--accent-cyan); color: #000; border-color: var(--accent-cyan); font-weight: 800; }
+
+    /* Cross ELS Search Box */
+    .cross-search-box { background: rgba(217, 70, 239, 0.08); border: 1px solid rgba(217, 70, 239, 0.3); border-radius: 12px; padding: 12px; margin-bottom: 12px; }
+    .cross-search-header { font-size: 13px; font-weight: 800; color: #f472b6; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+
+    /* 2D Matrix Board */
+    .matrix-board-scroll { overflow-x: auto; background: #04060a; border-radius: 14px; padding: 14px; border: 1px solid var(--border); text-align: center; max-height: 440px; overflow-y: auto; }
+    .matrix-grid-table { display: inline-grid; gap: 3px; justify-content: center; margin: 0 auto; }
+
+    /* Matrix Letter Tiles */
+    .m-tile {
+      width: 32px; height: 34px; display: flex; align-items: center; justify-content: center;
+      background: rgba(15, 20, 31, 0.7); border: 1px solid rgba(35, 47, 72, 0.6); border-radius: 6px;
+      font-family: var(--font-torah); font-size: 18px; font-weight: 700; color: #64748b; user-select: none;
+    }
+    /* Primary Word: Neon Gold */
+    .m-tile.target-primary {
+      background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+      color: #000 !important; font-size: 20px; font-weight: 900;
+      border-color: #fde047 !important; box-shadow: 0 0 14px var(--gold-glow);
+      transform: scale(1.08); z-index: 2;
+    }
+    /* Secondary Word: Neon Cyan */
+    .m-tile.target-secondary {
+      background: linear-gradient(135deg, #06b6d4, #0284c7) !important;
+      color: #000 !important; font-size: 20px; font-weight: 900;
+      border-color: #67e8f9 !important; box-shadow: 0 0 14px var(--accent-cyan-glow);
+      transform: scale(1.08); z-index: 2;
+    }
+    /* Direct Intersection: Neon Fuchsia */
+    .m-tile.target-intersect {
+      background: linear-gradient(135deg, #ec4899, #be185d) !important;
+      color: #fff !important; font-size: 21px; font-weight: 900;
+      border-color: #f472b6 !important; box-shadow: 0 0 18px var(--fuchsia-glow);
+      transform: scale(1.15); z-index: 3; animation: pulseGlow 1.5s infinite alternate;
+    }
+
+    @keyframes pulseGlow {
+      from { box-shadow: 0 0 10px var(--fuchsia-glow); }
+      to { box-shadow: 0 0 22px var(--fuchsia); }
+    }
+
+    /* Verses and Rashi */
+    .verse-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 10px; }
+    .verse-title { font-size: 13px; font-weight: 800; color: var(--accent-cyan); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+    .verse-text-body { font-family: var(--font-torah); font-size: 19px; line-height: 1.8; color: #f1f5f9; }
+    .highlight-letter { background: var(--gold); color: #000; font-weight: 900; padding: 1px 4px; border-radius: 4px; box-shadow: 0 0 8px var(--gold-glow); display: inline-block; }
+    .rashi-container { margin-top: 10px; padding: 10px; background: #090d16; border-radius: 8px; border: 1px solid var(--border); display: none; font-size: 14px; line-height: 1.6; color: #cbd5e1; }
   </style>
 </head>
 <body>
+
 <div class="app-container">
+  <!-- Header -->
   <div class="header">
-    <h1>מנוע דילוגי אותיות בתנ"ך</h1>
-    <p>סריקת 1,206,047 אותיות מקראיות | אופליין מלא בדפדפן</p>
-    <div class="db-status-badge" onclick="handleStatusClick()">
+    <h1>מנוע דילוגי אותיות בתנ"ך | ELS Pro</h1>
+    <p>סריקת 1,206,047 אותיות מקראיות | חיתוכי מילים | פשט ורש"י</p>
+    <div class="db-status-badge" onclick="handleStatusBadgeClick()">
       <div class="status-dot" id="db-status-dot"></div>
-      <span id="db-status-text">בודק מאגר מקומי...</span>
+      <span id="db-status-text">בודק זיכרון מכשיר...</span>
     </div>
   </div>
 
+  <!-- Tabs -->
   <div class="tab-bar">
-    <button class="tab-btn active" id="tab-search-btn" onclick="switchTab('search')">🔍 חיפוש</button>
-    <button class="tab-btn" id="tab-matrix-btn" onclick="switchTab('matrix')">⊞ מטריצה</button>
-    <button class="tab-btn" id="tab-db-btn" onclick="switchTab('db')">⚙️ מאגר</button>
+    <button class="tab-btn active" id="tab-btn-search" onclick="switchTab('search')">🔍 חיפוש</button>
+    <button class="tab-btn" id="tab-btn-matrix" onclick="switchTab('matrix')">⊞ לוח מטריצה</button>
+    <button class="tab-btn" id="tab-btn-context" onclick="switchTab('context')">📖 הקשר ורש"י</button>
+    <button class="tab-btn" id="tab-btn-db" onclick="switchTab('db')">⚙️ מאגר</button>
   </div>
 
+  <!-- Pane 1: Search -->
   <div class="card" id="pane-search">
     <div class="form-group">
-      <label style="font-size:13px; font-weight:700;">מילה לחיפוש בעברית:</label>
-      <input type="text" id="input-word" value="תורה">
+      <label>מילה לחיפוש בעברית (ללא ניקוד):</label>
+      <input type="text" id="input-word" value="טראמפ" placeholder="תורה, ישראל, שלום, משיח...">
     </div>
 
     <div class="chips-row">
-      <div class="chip" onclick="setWord('תורה', 49, 51)">תורה (דילוג 50)</div>
-      <div class="chip" onclick="setWord('ישראל', 2, 150)">ישראל</div>
+      <div class="chip" onclick="setWord('תורה', 49, 51)">תורה (50)</div>
+      <div class="chip" onclick="setWord('טראמפ', 2, 500)">טראמפ (עד 500)</div>
+      <div class="chip" onclick="setWord('ישראל', 2, 200)">ישראל</div>
+      <div class="chip" onclick="setWord('משיח', 2, 300)">משיח</div>
+      <div class="chip" onclick="setWord('ירושלים', 2, 500)">ירושלים</div>
       <div class="chip" onclick="setWord('שלום', 2, 100)">שלום</div>
-      <div class="chip" onclick="setWord('משיח', 2, 200)">משיח</div>
-      <div class="chip" onclick="setWord('ירושלים', 2, 250)">ירושלים</div>
     </div>
 
     <div class="input-row">
       <div class="form-group">
-        <label style="font-size:12px;">מדילוג:</label>
-        <input type="number" id="input-min-skip" value="2">
+        <label>מדילוג:</label>
+        <input type="number" id="input-min-skip" value="2" min="1">
       </div>
       <div class="form-group">
-        <label style="font-size:12px;">עד דילוג:</label>
-        <input type="number" id="input-max-skip" value="100">
+        <label>עד דילוג (עד 2000):</label>
+        <input type="number" id="input-max-skip" value="200" max="2500">
       </div>
     </div>
 
-    <button class="btn-primary" id="btn-run-search" onclick="startSearch()">סרוק דילוגים בתנ"ך</button>
+    <button class="btn-primary" id="btn-run-search" onclick="startSearch()">סרוק דילוגים בכל התנ"ך</button>
 
     <div class="progress-box" id="search-progress-box">
-      <div style="font-size:12px; color:var(--text-muted); display:flex; justify-content:space-between;">
-        <span id="search-status-msg">סורק...</span>
+      <div style="font-size:12px; color:var(--text-muted); display:flex; justify-content:space-between; margin-bottom:4px;">
+        <span id="search-status-msg">סורק אותיות...</span>
         <span id="search-progress-pct">0%</span>
       </div>
       <div class="progress-bar-bg"><div class="progress-bar-fill" id="search-progress-fill"></div></div>
@@ -104,36 +194,78 @@
     <div class="results-wrapper" id="results-list"></div>
   </div>
 
-  <div class="card matrix-panel" id="pane-matrix">
+  <!-- Pane 2: Matrix & Cross-Word Intersect -->
+  <div class="card" id="pane-matrix" style="display:none;">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-      <strong id="matrix-display-title" style="color:var(--accent-gold); font-size:15px;">לוח מטריצה</strong>
-      <button class="btn-secondary" onclick="switchTab('search')">חזרה</button>
+      <div>
+        <strong id="matrix-display-title" style="color:var(--gold); font-size:16px;">לוח מטריצה</strong>
+        <div id="matrix-stats-line" style="font-size:11px; color:var(--text-muted);">טרם נבחרה תוצאה</div>
+      </div>
+      <button class="btn-secondary" onclick="switchTab('search')">חזרה לרשימה</button>
     </div>
 
-    <div style="display:flex; gap:6px; margin-bottom:10px; align-items:center;">
-      <span style="font-size:12px;">רוחב:</span>
-      <button class="btn-secondary" onclick="setMatrixWidth('vertical')">אנכי</button>
-      <button class="btn-secondary" onclick="setMatrixWidth(20)">20</button>
-      <button class="btn-secondary" onclick="setMatrixWidth(35)">35</button>
-      <button class="btn-secondary" onclick="setMatrixWidth(50)">50</button>
+    <!-- Matrix Toolbar -->
+    <div class="matrix-toolbar">
+      <div class="matrix-tool-row">
+        <span style="font-size:12px; font-weight:700;">רוחב שורה (עמודות):</span>
+        <div class="btn-pill-group">
+          <button class="btn-pill active" id="btn-w-vert" onclick="setMatrixWidth('vertical')">אנכי (טור)</button>
+          <button class="btn-pill" id="btn-w-15" onclick="setMatrixWidth(15)">15</button>
+          <button class="btn-pill" id="btn-w-25" onclick="setMatrixWidth(25)">25</button>
+          <button class="btn-pill" id="btn-w-40" onclick="setMatrixWidth(40)">40</button>
+        </div>
+      </div>
     </div>
 
-    <div class="matrix-grid-scroll"><div class="matrix-grid" id="matrix-grid-content"></div></div>
+    <!-- Cross ELS Search (מנוע חיתוכים ומפגשים) -->
+    <div class="cross-search-box">
+      <div class="cross-search-header">
+        <span>⚡ חיתוך ומפגש: חפש מילה משנית על גבי המטריצה</span>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <input type="text" id="input-cross-word" placeholder="למשל: נשיא, מלך, בחירות, ישראל..." style="flex:1; padding:8px 12px; font-size:14px; background:#080c16; border:1px solid var(--border); border-radius:8px; color:#fff;">
+        <button class="btn-secondary" style="background:#be185d; border-color:#f472b6; color:#fff;" onclick="searchCrossWord()">חפש חיתוך</button>
+        <button class="btn-secondary" onclick="clearCrossWord()">נקה</button>
+      </div>
+      <div id="cross-search-result" style="font-size:12px; color:#f472b6; margin-top:6px; font-weight:700; display:none;"></div>
+    </div>
 
-    <div class="context-panel">
-      <strong style="color:var(--accent-cyan); font-size:13px; display:block; margin-bottom:8px;">📖 הפסוקים שבהם נמצא הדילוג:</strong>
-      <div id="context-verses-content"></div>
+    <!-- The 2D Board -->
+    <div class="matrix-board-scroll">
+      <div class="matrix-grid-table" id="matrix-tiles-container">
+        <div style="padding:40px; color:var(--text-muted);">בצע חיפוש ולחץ "⊞ מטריצה"</div>
+      </div>
     </div>
   </div>
 
+  <!-- Pane 3: Full Context & Rashi -->
+  <div class="card" id="pane-context" style="display:none;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+      <strong id="context-title" style="color:var(--accent-cyan); font-size:15px;">הקשר הפסוקים והפשט המקראי</strong>
+      <button class="btn-secondary" onclick="switchTab('matrix')">⊞ צפה במטריצה</button>
+    </div>
+    <div id="context-verses-list">
+      <div style="text-align:center; padding:30px; color:var(--text-muted);">טרם נבחר ממצא. בצע חיפוש דילוגים תחילה.</div>
+    </div>
+  </div>
+
+  <!-- Pane 4: Database -->
   <div class="card" id="pane-db" style="display:none;">
-    <h3 style="color:var(--accent-cyan); margin-bottom:8px; font-size:16px;">התקנת טקסט התנ"ך</h3>
-    <p style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">הורדה חד-פעמית של כל 24 הספרים ישירות לזיכרון המכשיר.</p>
-    <button class="btn-primary" id="btn-download-tanakh" onclick="installTanakh()">⚡ הורד והתקן תנ"ך למכשיר (15 שניות)</button>
+    <h3 style="color:var(--accent-cyan); font-size:16px; margin-bottom:8px;">ניהול מאגר התנ"ך במכשיר</h3>
+    <p style="font-size:13px; color:var(--text-muted); line-height:1.6; margin-bottom:12px;">
+      דף זה שומר את כל 24 ספרי התנ"ך (1,206,047 אותיות) בזיכרון הפנימי של הדפדפן. לאחר הורדה אחת, המערכת עובדת 100% אופליין.
+    </p>
+
+    <div style="background:#090d16; border:1px solid var(--border); border-radius:10px; padding:12px; margin-bottom:12px; display:flex; justify-content:space-between;">
+      <span>סטטוס מאגר:</span>
+      <strong id="db-storage-stat" style="color:var(--gold);">טרם הותקן</strong>
+    </div>
+
+    <button class="btn-primary" id="btn-download-tanakh" onclick="installTanakhFromWeb()">⚡ הורד והתקן תנ"ך מלא למכשיר (פעולה חד-פעמית)</button>
 
     <div class="progress-box" id="dl-progress-box">
-      <div style="font-size:12px; color:var(--text-muted); display:flex; justify-content:space-between;">
-        <span id="dl-status-msg">מתחבר...</span>
+      <div style="font-size:12px; color:var(--text-muted); display:flex; justify-content:space-between; margin-bottom:4px;">
+        <span id="dl-status-msg">מתחבר למאגר...</span>
         <span id="dl-progress-pct">0%</span>
       </div>
       <div class="progress-bar-bg"><div class="progress-bar-fill" id="dl-progress-fill"></div></div>
@@ -142,6 +274,9 @@
 </div>
 
 <script>
+// ==============================================================
+// 1. רשימת הספרים המלאה (Sefaria API)
+// ==============================================================
 const TANAKH_BOOKS = [
   { eng: "Genesis", heb: "בראשית" }, { eng: "Exodus", heb: "שמות" }, { eng: "Leviticus", heb: "ויקרא" },
   { eng: "Numbers", heb: "במדבר" }, { eng: "Deuteronomy", heb: "דברים" }, { eng: "Joshua", heb: "יהושע" },
@@ -159,75 +294,100 @@ const TANAKH_BOOKS = [
 ];
 
 let GLOBAL_TEXT = "";
-let GLOBAL_VERSE_BOUNDS = [];
-let CURRENT_MATRIX = null;
+// [cleanOffset, bookHeb, ch, v, verseSpaced, bookEng]
+let GLOBAL_VERSES = [];
+let CURRENT_RESULT = null;
+let MATRIX_COLS = 'vertical';
+let SECONDARY_TARGETS = new Set();
 
 function cleanLetters(str) {
   return (str || '').replace(/<[^>]+>/g, '').replace(/[֑-ׇ]/g, '').replace(/[^א-ת]/g, '');
 }
 
+function cleanWithSpaces(str) {
+  if (!str) return '';
+  return str.replace(/<[^>]+>/g, '').replace(/[֑-ׇ]/g, '').replace(/[־\-\s]+/g, ' ').replace(/[^א-ת ]/g, '').trim();
+}
+
 function openDB() {
-  return new Promise(res => {
+  return new Promise((resolve) => {
+    let done = false;
+    const t = setTimeout(() => { if (!done) { done = true; resolve(null); } }, 800);
     try {
-      const req = indexedDB.open("TanakhDB_V6", 1);
-      req.onupgradeneeded = e => e.target.result.createObjectStore("store");
-      req.onsuccess = () => res(req.result);
-      req.onerror = () => res(null);
-    } catch(e) { res(null); }
+      if (!window.indexedDB) { clearTimeout(t); return resolve(null); }
+      const req = indexedDB.open("TanakhDB_Pro_V9", 1);
+      req.onupgradeneeded = e => { e.target.result.createObjectStore("store"); };
+      req.onsuccess = () => { if (!done) { done = true; clearTimeout(t); resolve(req.result); } };
+      req.onerror = () => { if (!done) { done = true; clearTimeout(t); resolve(null); } };
+    } catch(e) { if (!done) { done = true; clearTimeout(t); resolve(null); } }
   });
 }
 
 async function saveDB(k, v) {
   const db = await openDB();
-  if(!db) return;
-  const tx = db.transaction("store", "readwrite");
-  tx.objectStore("store").put(v, k);
+  if (!db) { try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {} return; }
+  return new Promise(res => {
+    try {
+      const tx = db.transaction("store", "readwrite");
+      tx.objectStore("store").put(v, k);
+      tx.oncomplete = () => res();
+      tx.onerror = () => res();
+    } catch(e) { res(); }
+  });
 }
 
 async function getDB(k) {
   const db = await openDB();
-  if(!db) return null;
+  if (!db) {
+    try { const raw = localStorage.getItem(k); return raw ? JSON.parse(raw) : null; } catch(e) { return null; }
+  }
   return new Promise(res => {
-    const tx = db.transaction("store", "readonly");
-    const r = tx.objectStore("store").get(k);
-    r.onsuccess = () => res(r.result || null);
-    r.onerror = () => res(null);
+    try {
+      const tx = db.transaction("store", "readonly");
+      const r = tx.objectStore("store").get(k);
+      r.onsuccess = () => res(r.result || null);
+      r.onerror = () => res(null);
+    } catch(e) { res(null); }
   });
 }
 
-function updateUIStatus(ready, count) {
+function updateStatusUI(ready, count) {
   const dot = document.getElementById("db-status-dot");
   const txt = document.getElementById("db-status-text");
-  if(ready) {
+  const stat = document.getElementById("db-storage-stat");
+  if (ready) {
     dot.className = "status-dot active";
     txt.innerText = "מוכן | " + count.toLocaleString() + " אותיות";
+    if (stat) { stat.innerText = "פעיל בזיכרון (100% אופליין)"; stat.style.color = "var(--emerald)"; }
   } else {
     dot.className = "status-dot";
-    txt.innerText = "נדרשת התקנה (לחץ כאן)";
+    txt.innerText = 'נדרשת טעינה של התנ"ך (לחץ כאן)';
+    if (stat) { stat.innerText = "טרם הותקן (לחץ להתקנה)"; stat.style.color = "var(--rose)"; }
   }
 }
 
-function handleStatusClick() {
-  if(!GLOBAL_TEXT || GLOBAL_TEXT.length < 500000) {
-    switchTab('db');
+function handleStatusBadgeClick() {
+  if (GLOBAL_TEXT && GLOBAL_TEXT.length > 500000) {
+    alert('מאגר התנ"ך מוכן ופעיל!\\n' + GLOBAL_TEXT.length.toLocaleString() + ' אותיות טעונות בזיכרון.');
   } else {
-    alert("המאגר מוכן לפעולה עם " + GLOBAL_TEXT.length.toLocaleString() + " אותיות.");
+    switchTab('db');
   }
 }
 
 window.addEventListener('DOMContentLoaded', async () => {
   const t = await getDB("text");
-  const b = await getDB("bounds");
-  if(t && t.length > 500000) {
+  const v = await getDB("verses");
+  if (t && t.length > 500000) {
     GLOBAL_TEXT = t;
-    GLOBAL_VERSE_BOUNDS = b || [];
-    updateUIStatus(true, t.length);
+    GLOBAL_VERSES = v || [];
+    updateStatusUI(true, t.length);
   } else {
-    updateUIStatus(false, 0);
+    updateStatusUI(false, 0);
   }
 });
 
-async function installTanakh() {
+// Parallel Sefaria Installer
+async function installTanakhFromWeb() {
   const btn = document.getElementById("btn-download-tanakh");
   const pBox = document.getElementById("dl-progress-box");
   const pFill = document.getElementById("dl-progress-fill");
@@ -247,12 +407,12 @@ async function installTanakh() {
       let r = await fetch(u);
       let d = await r.json();
       let ch = d.he || [];
-      if(!ch.length) {
+      if (!ch.length) {
         let r2 = await fetch("https://www.sefaria.org/api/texts/" + encodeURIComponent(b.eng) + "?context=0&pad=0");
         let d2 = await r2.json();
         ch = d2.he || [];
       }
-      if(ch.length && typeof ch[0] === 'string') ch = [ch];
+      if (ch.length && typeof ch[0] === 'string') ch = [ch];
       books[idx] = { b, ch };
     } catch(e) {
       books[idx] = { b, ch: [] };
@@ -261,71 +421,77 @@ async function installTanakh() {
     const pct = Math.round((done / total) * 100);
     pFill.style.width = pct + "%";
     pPct.innerText = pct + "%";
-    pMsg.innerText = "נטען: " + b.heb + "...";
+    pMsg.innerText = "נטען: " + b.heb + " (" + done + "/" + total + ")...";
   }
 
-  for(let i=0; i<total; i+=4) {
+  for (let i = 0; i < total; i += 4) {
     await Promise.all([
       fetchBook(TANAKH_BOOKS[i], i),
-      i+1 < total ? fetchBook(TANAKH_BOOKS[i+1], i+1) : null,
-      i+2 < total ? fetchBook(TANAKH_BOOKS[i+2], i+2) : null,
-      i+3 < total ? fetchBook(TANAKH_BOOKS[i+3], i+3) : null
+      i + 1 < total ? fetchBook(TANAKH_BOOKS[i + 1], i + 1) : null,
+      i + 2 < total ? fetchBook(TANAKH_BOOKS[i + 2], i + 2) : null,
+      i + 3 < total ? fetchBook(TANAKH_BOOKS[i + 3], i + 3) : null
     ]);
   }
 
-  let letters = [];
-  let bounds = [];
+  let fullLetters = [];
+  let versesList = [];
   let offset = 0;
 
-  for(let i=0; i<total; i++) {
+  for (let i = 0; i < total; i++) {
     const item = books[i];
-    if(!item) continue;
-    for(let c=0; c<item.ch.length; c++) {
-      for(let v=0; v<item.ch[c].length; v++) {
-        const cl = cleanLetters(item.ch[c][v]);
-        if(cl.length) {
-          bounds.push([offset, item.b.heb, c+1, v+1]);
-          letters.push(cl);
+    if (!item) continue;
+    for (let c = 0; c < item.ch.length; c++) {
+      for (let v = 0; v < item.ch[c].length; v++) {
+        const rawVerse = item.ch[c][v];
+        const cl = cleanLetters(rawVerse);
+        const spaced = cleanWithSpaces(rawVerse);
+        if (cl.length) {
+          versesList.push([offset, item.b.heb, c + 1, v + 1, spaced, item.b.eng]);
+          fullLetters.push(cl);
           offset += cl.length;
         }
       }
     }
   }
 
-  GLOBAL_TEXT = letters.join('');
-  GLOBAL_VERSE_BOUNDS = bounds;
+  GLOBAL_TEXT = fullLetters.join('');
+  GLOBAL_VERSES = versesList;
 
   await saveDB("text", GLOBAL_TEXT);
-  await saveDB("bounds", GLOBAL_VERSE_BOUNDS);
+  await saveDB("verses", GLOBAL_VERSES);
 
   btn.disabled = false;
   pBox.style.display = "none";
-  updateUIStatus(true, GLOBAL_TEXT.length);
-  alert("ההתקנה הושלמה בהצלחה! 1,206,047 אותיות נשמרו במכשיר.");
+  updateStatusUI(true, GLOBAL_TEXT.length);
+  alert('ההתקנה הושלמה בהצלחה!\\n1,206,047 אותיות נשמרו במכשיר.\\nכעת תוכל לחפש דילוגים בחופשיות!');
   switchTab('search');
 }
 
-function lookupLoc(charIdx) {
-  if(!GLOBAL_VERSE_BOUNDS.length) return { book: 'תנ"ך', ch: 1, v: 1 };
-  let l = 0, h = GLOBAL_VERSE_BOUNDS.length - 1, ans = GLOBAL_VERSE_BOUNDS[0];
-  while(l <= h) {
+function lookupVerse(charIdx) {
+  if (!GLOBAL_VERSES.length) return { book: 'תנ"ך', ch: 1, v: 1, text: '', eng: 'Genesis' };
+  let l = 0, h = GLOBAL_VERSES.length - 1, ans = GLOBAL_VERSES[0];
+  while (l <= h) {
     const m = (l + h) >> 1;
-    if(GLOBAL_VERSE_BOUNDS[m][0] <= charIdx) { ans = GLOBAL_VERSE_BOUNDS[m]; l = m + 1; }
+    if (GLOBAL_VERSES[m][0] <= charIdx) { ans = GLOBAL_VERSES[m]; l = m + 1; }
     else { h = m - 1; }
   }
-  return { book: ans[1], ch: ans[2], v: ans[3] };
+  return { offset: ans[0], book: ans[1], ch: ans[2], v: ans[3], text: ans[4], eng: ans[5] };
 }
 
+// Search Algorithm
 async function startSearch() {
-  if(!GLOBAL_TEXT || GLOBAL_TEXT.length < 500000) {
-    alert("נא להתקין תחילה את הטקסט בלשונית מאגר.");
+  if (!GLOBAL_TEXT || GLOBAL_TEXT.length < 500000) {
+    alert('נא להתקין תחילה את מאגר התנ"ך בלשונית מאגר.');
     switchTab('db');
     return;
   }
-  const word = cleanLetters(document.getElementById("input-word").value);
-  const minS = parseInt(document.getElementById("input-min-skip").value) || 2;
-  const maxS = parseInt(document.getElementById("input-max-skip").value) || 100;
-  if(word.length < 2) return alert("יש להזין מילה בת 2 אותיות לפחות.");
+
+  const rawWord = document.getElementById("input-word").value;
+  const word = cleanLetters(rawWord);
+  const minS = parseInt(document.getElementById("input-min-skip").value, 10) || 2;
+  const maxS = parseInt(document.getElementById("input-max-skip").value, 10) || 200;
+
+  if (word.length < 2) return alert("יש להזין מילה בת 2 אותיות לפחות בעברית.");
 
   const resDiv = document.getElementById("results-list");
   const pBox = document.getElementById("search-progress-box");
@@ -342,151 +508,356 @@ async function startSearch() {
   const n = GLOBAL_TEXT.length;
   const pivotChar = word[0];
   let pivotPos = [];
-  for(let i=0; i<n; i++) if(GLOBAL_TEXT[i] === pivotChar) pivotPos.push(i);
+  for (let i = 0; i < n; i++) if (GLOBAL_TEXT[i] === pivotChar) pivotPos.push(i);
 
   let skips = [];
-  for(let s=minS; s<=maxS; s++) { skips.push(s); skips.push(-s); }
+  for (let s = minS; s <= maxS; s++) { skips.push(s); skips.push(-s); }
 
   let matches = [];
   const t0 = performance.now();
   let sIdx = 0;
 
   function chunk() {
-    const end = Math.min(sIdx + 15, skips.length);
-    for(let k=sIdx; k<end; k++) {
+    const end = Math.min(sIdx + 20, skips.length);
+    for (let k = sIdx; k < end; k++) {
       const s = skips[k];
       const span = (wLen - 1) * s;
-      for(let p=0; p<pivotPos.length; p++) {
+      for (let p = 0; p < pivotPos.length; p++) {
         const start = pivotPos[p];
         const last = start + span;
-        if(s > 0 && last >= n) continue;
-        if(s < 0 && last < 0) continue;
+        if (s > 0 && last >= n) continue;
+        if (s < 0 && last < 0) continue;
 
         let ok = true;
-        for(let j=1; j<wLen; j++) {
-          if(GLOBAL_TEXT[start + j*s] !== word[j]) { ok = false; break; }
+        for (let j = 1; j < wLen; j++) {
+          if (GLOBAL_TEXT[start + j * s] !== word[j]) { ok = false; break; }
         }
-        if(ok) {
+        if (ok) {
           matches.push({ start, skip: s });
-          if(matches.length >= 100) break;
+          if (matches.length >= 250) break;
         }
       }
-      if(matches.length >= 100) break;
+      if (matches.length >= 250) break;
     }
     sIdx = end;
     const pct = Math.round((sIdx / skips.length) * 100);
     pFill.style.width = pct + "%";
     pPct.innerText = pct + "%";
-    pMsg.innerText = "נמצאו " + matches.length + " מופעים...";
+    pMsg.innerText = "נמצאו " + matches.length + " מופעים עד כה...";
 
-    if(sIdx < skips.length && matches.length < 100) {
+    if (sIdx < skips.length && matches.length < 250) {
       setTimeout(chunk, 0);
     } else {
       pBox.style.display = "none";
       btn.disabled = false;
-      renderResults(matches, word);
+      renderSearchResults(matches, word, ((performance.now() - t0)/1000).toFixed(2));
     }
   }
   chunk();
 }
 
-function renderResults(matches, word) {
+function renderSearchResults(matches, word, elapsedSec) {
   const resDiv = document.getElementById("results-list");
-  matches.sort((a,b) => Math.abs(a.skip) - Math.abs(b.skip));
-  if(!matches.length) {
-    resDiv.innerHTML = "<div style='text-align:center; padding:20px; color:var(--text-muted);'>לא נמצאו מופעים.</div>";
+  matches.sort((a, b) => Math.abs(a.skip) - Math.abs(b.skip));
+
+  if (!matches.length) {
+    resDiv.innerHTML = "<div style='text-align:center; padding:20px; color:var(--text-muted);'>לא נמצאו מופעים עבור \"" + word + "\". נסה להגדיל את טווח הדילוגים (למשל עד 500 או 1000).</div>";
     return;
   }
-  let h = "<div style='font-size:13px; color:var(--accent-cyan); margin-bottom:8px;'>נמצאו " + matches.length + " מופעים:</div>";
+
+  let html = `<div style="font-size:13px; color:var(--accent-cyan); margin-bottom:8px; font-weight:700;">
+    נמצאו ${matches.length} מופעים ב-${elapsedSec} שניות (ממוינים לפי גודל דילוג):
+  </div>`;
+
   matches.forEach(m => {
-    const locS = lookupLoc(m.start);
-    const locE = lookupLoc(m.start + (word.length - 1)*m.skip);
-    h += `
+    const locS = lookupVerse(m.start);
+    const locE = lookupVerse(m.start + (word.length - 1) * m.skip);
+    const isRev = m.skip < 0;
+
+    html += `
       <div class="result-card">
         <div>
-          <span class="skip-badge">דילוג ${m.skip}</span>
-          <div style="font-weight:700; font-size:13px; margin-top:4px;">${locS.book} ${locS.ch}:${locS.v}</div>
+          <span class="skip-badge ${isRev ? 'reverse' : ''}">דילוג ${m.skip > 0 ? '+' + m.skip : m.skip} (${isRev ? 'למפרע' : 'קדימה'})</span>
+          <div style="font-weight:800; font-size:14px; margin-top:4px;">${locS.book} ${locS.ch}:${locS.v}</div>
           <div style="font-size:11px; color:var(--text-muted);">עד ${locE.book} ${locE.ch}:${locE.v}</div>
         </div>
-        <button class="btn-secondary" onclick="renderMatrix(${m.start}, ${m.skip}, ${word.length}, '${word}')">⊞ מטריצה</button>
+        <button class="btn-secondary" style="background:rgba(245,158,11,0.15); color:var(--gold); border-color:rgba(245,158,11,0.4);" onclick="selectMatch(${m.start}, ${m.skip}, ${word.length}, '${word}')">
+          ⊞ מטריצה
+        </button>
       </div>
     `;
   });
-  resDiv.innerHTML = h;
+
+  resDiv.innerHTML = html;
 }
 
-function renderMatrix(start, skip, wLen, word) {
-  CURRENT_MATRIX = { start, skip, wLen, word, width: Math.abs(skip) };
+function selectMatch(start, skip, wLen, word) {
+  CURRENT_RESULT = { start, skip, wLen, word };
+  SECONDARY_TARGETS.clear();
+  document.getElementById('input-cross-word').value = '';
+  document.getElementById('cross-search-result').style.display = 'none';
+  MATRIX_COLS = 'vertical';
   switchTab('matrix');
-  drawMatrix();
+  renderMatrixView();
+  renderContextView();
 }
 
 function setMatrixWidth(w) {
-  if(!CURRENT_MATRIX) return;
-  CURRENT_MATRIX.width = (w === 'vertical') ? Math.abs(CURRENT_MATRIX.skip) : parseInt(w);
-  drawMatrix();
+  MATRIX_COLS = w;
+  document.querySelectorAll('#pane-matrix .btn-pill').forEach(b => b.classList.remove('active'));
+  if (w === 'vertical') document.getElementById('btn-w-vert').classList.add('active');
+  else if (w === 15) document.getElementById('btn-w-15').classList.add('active');
+  else if (w === 25) document.getElementById('btn-w-25').classList.add('active');
+  else if (w === 40) document.getElementById('btn-w-40').classList.add('active');
+  renderMatrixView();
 }
 
-function drawMatrix() {
-  const { start, skip, wLen, word, width } = CURRENT_MATRIX;
-  const W = width || Math.abs(skip);
-  const title = document.getElementById("matrix-display-title");
-  const grid = document.getElementById("matrix-grid-content");
-  const ctxDiv = document.getElementById("context-verses-content");
+// 2D Matrix Rendering
+function renderMatrixView() {
+  if (!CURRENT_RESULT) return;
+  const { start, skip, wLen, word } = CURRENT_RESULT;
+  const absS = Math.abs(skip);
+  const W = (MATRIX_COLS === 'vertical') ? absS : parseInt(MATRIX_COLS, 10);
 
-  title.innerText = 'מטריצה עבור "' + word + '" בדילוג ' + skip;
+  const titleEl = document.getElementById("matrix-display-title");
+  const statsEl = document.getElementById("matrix-stats-line");
+  const boardEl = document.getElementById("matrix-tiles-container");
 
-  let targets = new Set();
-  for(let i=0; i<wLen; i++) targets.add(start + i*skip);
+  const loc = lookupVerse(start);
+  titleEl.innerText = `מטריצה עבור "${word}" בדילוג ${skip} (${loc.book})`;
+  statsEl.innerText = `רוחב שורה: ${W} אותיות | מיקום בתנ"ך: ${loc.book} ${loc.ch}:${loc.v}`;
 
-  const minT = Math.min(...targets);
-  const maxT = Math.max(...targets);
-  const minR = Math.max(0, Math.floor(minT / W) - 5);
-  const maxR = Math.min(Math.floor(GLOBAL_TEXT.length / W), Math.floor(maxT / W) + 5);
+  let primaryTargets = new Set();
+  for (let i = 0; i < wLen; i++) primaryTargets.add(start + i * skip);
+
+  const minT = Math.min(...primaryTargets);
+  const maxT = Math.max(...primaryTargets);
+
+  const padRows = 8;
+  const minRow = Math.max(0, Math.floor(minT / W) - padRows);
+  const maxRow = Math.min(Math.floor((GLOBAL_TEXT.length - 1) / W), Math.floor(maxT / W) + padRows);
+
+  boardEl.style.gridTemplateColumns = `repeat(${W}, 1fr)`;
 
   let html = "";
-  for(let r=minR; r<=maxR; r++) {
-    let rowH = "";
-    for(let c=0; c<W; c++) {
-      const pos = r*W + c;
-      if(pos >= GLOBAL_TEXT.length) break;
+  for (let r = minRow; r <= maxRow; r++) {
+    for (let c = 0; c < W; c++) {
+      const pos = r * W + c;
+      if (pos >= GLOBAL_TEXT.length) break;
       const ch = GLOBAL_TEXT[pos];
-      rowH += `<span class="m-char ${targets.has(pos) ? 'target' : ''}">${ch}</span>`;
-    }
-    html += rowH + "<br>";
-  }
-  grid.innerHTML = html;
+      const isPrim = primaryTargets.has(pos);
+      const isSec = SECONDARY_TARGETS.has(pos);
 
-  // הצגת פסוקים
-  let vList = "";
-  for(let v=0; v<GLOBAL_VERSE_BOUNDS.length; v++) {
-    const [off, b, ch, vs] = GLOBAL_VERSE_BOUNDS[v];
-    const next = (v+1 < GLOBAL_VERSE_BOUNDS.length) ? GLOBAL_VERSE_BOUNDS[v+1][0] : GLOBAL_TEXT.length;
-    if(next >= minT && off <= maxT) {
-      let vTxt = "";
-      for(let j=off; j<next; j++) {
-        vTxt += targets.has(j) ? `<span class="verse-target-char">${GLOBAL_TEXT[j]}</span>` : GLOBAL_TEXT[j];
-      }
-      vList += `<div class="verse-item"><span class="verse-ref-tag">${b} ${ch}:${vs}</span> ${vTxt}</div>`;
+      let tileClass = "m-tile";
+      if (isPrim && isSec) tileClass += " target-intersect";
+      else if (isPrim) tileClass += " target-primary";
+      else if (isSec) tileClass += " target-secondary";
+
+      html += `<div class="${tileClass}">${ch}</div>`;
     }
   }
-  ctxDiv.innerHTML = vList;
+  boardEl.innerHTML = html;
 }
 
-function switchTab(t) {
-  document.getElementById("pane-search").style.display = t === 'search' ? 'block' : 'none';
-  document.getElementById("pane-matrix").style.display = t === 'matrix' ? 'block' : 'none';
-  document.getElementById("pane-db").style.display = t === 'db' ? 'block' : 'none';
+// Cross-Word Search Engine (חיפוש מילה מצטלבת/קרובה)
+function searchCrossWord() {
+  if (!CURRENT_RESULT) return;
+  const crossInput = document.getElementById('input-cross-word').value.trim();
+  const word2 = cleanLetters(crossInput);
+  const resEl = document.getElementById('cross-search-result');
 
-  document.getElementById("tab-search-btn").className = "tab-btn " + (t === 'search' ? 'active' : '');
-  document.getElementById("tab-matrix-btn").className = "tab-btn " + (t === 'matrix' ? 'active' : '');
-  document.getElementById("tab-db-btn").className = "tab-btn " + (t === 'db' ? 'active' : '');
+  if (word2.length < 2) {
+    alert("הזן מילה משנית בת 2 אותיות לפחות.");
+    return;
+  }
+
+  const { start, skip, wLen } = CURRENT_RESULT;
+  const absS = Math.abs(skip);
+  const W = (MATRIX_COLS === 'vertical') ? absS : parseInt(MATRIX_COLS, 10);
+
+  let primaryTargets = new Set();
+  for (let i = 0; i < wLen; i++) primaryTargets.add(start + i * skip);
+
+  const minT = Math.min(...primaryTargets);
+  const maxT = Math.max(...primaryTargets);
+  const padRows = 10;
+  const startWindow = Math.max(0, (Math.floor(minT / W) - padRows) * W);
+  const endWindow = Math.min(GLOBAL_TEXT.length, (Math.floor(maxT / W) + padRows + 1) * W);
+
+  const localText = GLOBAL_TEXT.slice(startWindow, endWindow);
+  const w2Len = word2.length;
+  let foundInstances = [];
+
+  // סריקת דילוגים מקומיים בתוך חלון המטריצה
+  const testSkips = [1, -1, W, -W, W + 1, -(W + 1), W - 1, -(W - 1), 2, -2, 3, -3];
+
+  for (let s of testSkips) {
+    const span = (w2Len - 1) * s;
+    for (let p = 0; p < localText.length; p++) {
+      if (localText[p] !== word2[0]) continue;
+      const endP = p + span;
+      if (s > 0 && endP >= localText.length) continue;
+      if (s < 0 && endP < 0) continue;
+
+      let match = true;
+      for (let j = 1; j < w2Len; j++) {
+        if (localText[p + j * s] !== word2[j]) { match = false; break; }
+      }
+      if (match) {
+        let globalIndices = [];
+        let hasOverlap = false;
+        for (let j = 0; j < w2Len; j++) {
+          const gIdx = startWindow + p + j * s;
+          globalIndices.push(gIdx);
+          if (primaryTargets.has(gIdx)) hasOverlap = true;
+        }
+        foundInstances.push({ skip: s, indices: globalIndices, hasOverlap });
+      }
+    }
+  }
+
+  if (!foundInstances.length) {
+    resEl.style.display = 'block';
+    resEl.style.color = 'var(--text-muted)';
+    resEl.innerText = `לא נמצאה המילה "${word2}" באזור המטריצה הנוכחית.`;
+    SECONDARY_TARGETS.clear();
+    renderMatrixView();
+    return;
+  }
+
+  // עדיפות להצטלבות ישירה
+  foundInstances.sort((a, b) => (b.hasOverlap ? 1 : 0) - (a.hasOverlap ? 1 : 0));
+  const best = foundInstances[0];
+
+  SECONDARY_TARGETS = new Set(best.indices);
+  resEl.style.display = 'block';
+  if (best.hasOverlap) {
+    resEl.style.color = '#f43f5e';
+    resEl.innerHTML = `🎯 <strong>נמצאה הצטלבות ישירה!</strong> המילה "${word2}" חוצה את המילה הראשית באות משותפת (מסומנת בורוד-ניאון)!`;
+  } else {
+    resEl.style.color = 'var(--accent-cyan)';
+    resEl.innerHTML = `✨ <strong>נמצא מפגש סמוך!</strong> המילה "${word2}" נמצאה בקרבת מקום במטריצה (בצבע טורקיז).`;
+  }
+
+  renderMatrixView();
+}
+
+function clearCrossWord() {
+  SECONDARY_TARGETS.clear();
+  document.getElementById('input-cross-word').value = '';
+  document.getElementById('cross-search-result').style.display = 'none';
+  renderMatrixView();
+}
+
+// Biblical Context & Rashi
+function renderContextView() {
+  if (!CURRENT_RESULT || !GLOBAL_VERSES.length) return;
+  const { start, skip, wLen, word } = CURRENT_RESULT;
+
+  let primaryTargets = new Set();
+  for (let i = 0; i < wLen; i++) primaryTargets.add(start + i * skip);
+
+  const minT = Math.min(...primaryTargets);
+  const maxT = Math.max(...primaryTargets);
+
+  let startVIdx = 0, endVIdx = GLOBAL_VERSES.length - 1;
+  for (let i = 0; i < GLOBAL_VERSES.length; i++) {
+    const off = GLOBAL_VERSES[i][0];
+    const nextOff = (i + 1 < GLOBAL_VERSES.length) ? GLOBAL_VERSES[i + 1][0] : GLOBAL_TEXT.length;
+    if (off <= minT && minT < nextOff) startVIdx = Math.max(0, i - 1);
+    if (off <= maxT && maxT < nextOff) endVIdx = Math.min(GLOBAL_VERSES.length - 1, i + 1);
+  }
+
+  let html = "";
+  for (let i = startVIdx; i <= endVIdx; i++) {
+    const [off, bHeb, ch, v, verseSpaced, bEng] = GLOBAL_VERSES[i];
+    let rendered = "";
+    let cleanCharPtr = off;
+
+    for (let k = 0; k < verseSpaced.length; k++) {
+      const c = verseSpaced[k];
+      if (c !== ' ') {
+        if (primaryTargets.has(cleanCharPtr)) {
+          rendered += `<span class="highlight-letter">${c}</span>`;
+        } else {
+          rendered += c;
+        }
+        cleanCharPtr++;
+      } else {
+        rendered += ' ';
+      }
+    }
+
+    const rashiId = `rashi-${i}`;
+    html += `
+      <div class="verse-card">
+        <div class="verse-title">
+          <span>📜 ${bHeb} פרק ${ch}, פסוק ${v}</span>
+          <button class="btn-secondary" style="font-size:11px; padding:3px 8px;" onclick="toggleRashi('${bEng}', ${ch}, ${v}, '${rashiId}')">
+            📖 פירוש רש"י
+          </button>
+        </div>
+        <div class="verse-text-body">${rendered}</div>
+        <div class="rashi-container" id="${rashiId}">טוען פירוש רש"י לפסוק...</div>
+      </div>
+    `;
+  }
+
+  document.getElementById("context-title").innerText = `פשט הפסוקים עבור "${word}" בדילוג ${skip}`;
+  document.getElementById("context-verses-list").innerHTML = html;
+}
+
+// Fetch Rashi from Sefaria API
+async function toggleRashi(bookEng, ch, v, containerId) {
+  const box = document.getElementById(containerId);
+  if (!box) return;
+
+  if (box.style.display === 'block') {
+    box.style.display = 'none';
+    return;
+  }
+
+  box.style.display = 'block';
+  box.innerHTML = '<em>מתחבר ומוריד פירוש רש"י...</em>';
+
+  try {
+    const url = `https://www.sefaria.org/api/texts/Rashi_on_${encodeURIComponent(bookEng)}.${ch}.${v}?context=0`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("פירוש לא נמצא");
+    const data = await res.json();
+    const comm = data.he;
+
+    if (!comm || (Array.isArray(comm) && comm.length === 0)) {
+      box.innerHTML = '<span style="color:var(--text-muted);">אין פירוש רש"י ספציפי על פסוק זה.</span>';
+      return;
+    }
+
+    let rashiText = Array.isArray(comm) ? comm.join("<br><br>") : comm;
+    box.innerHTML = `<strong style="color:var(--gold); display:block; margin-bottom:4px;">רש"י:</strong>${rashiText}`;
+  } catch(e) {
+    box.innerHTML = '<span style="color:var(--rose);">לא ניתן לטעון כעת את פירוש רש"י (בדוק חיבור אינטרנט).</span>';
+  }
+}
+
+// Navigation Tabs
+function switchTab(tabId) {
+  document.getElementById('pane-search').style.display = tabId === 'search' ? 'block' : 'none';
+  document.getElementById('pane-matrix').style.display = tabId === 'matrix' ? 'block' : 'none';
+  document.getElementById('pane-context').style.display = tabId === 'context' ? 'block' : 'none';
+  document.getElementById('pane-db').style.display = tabId === 'db' ? 'block' : 'none';
+
+  document.getElementById('tab-btn-search').className = 'tab-btn ' + (tabId === 'search' ? 'active' : '');
+  document.getElementById('tab-btn-matrix').className = 'tab-btn ' + (tabId === 'matrix' ? 'active' : '');
+  document.getElementById('tab-btn-context').className = 'tab-btn ' + (tabId === 'context' ? 'active' : '');
+  document.getElementById('tab-btn-db').className = 'tab-btn ' + (tabId === 'db' ? 'active' : '');
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function setWord(w, minS, maxS) {
-  document.getElementById("input-word").value = w;
-  document.getElementById("input-min-skip").value = minS;
-  document.getElementById("input-max-skip").value = maxS;
+  document.getElementById('input-word').value = w;
+  document.getElementById('input-min-skip').value = minS;
+  document.getElementById('input-max-skip').value = maxS;
 }
 </script>
 </body>
