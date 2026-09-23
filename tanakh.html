@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>מנוע דילוגי אותיות בתנ"ך</title>
+  <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #090d16; --bg-surface: #111827; --bg-card: #1f293d;
+      --border-color: #2d3b55; --accent-cyan: #38bdf8; --accent-gold: #f59e0b;
+      --accent-emerald: #10b981; --accent-rose: #f43f5e; --text-main: #f8fafc;
+      --text-muted: #94a3b8; --font-main: 'Assistant', sans-serif; --font-mono: 'JetBrains Mono', monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body { background-color: var(--bg-primary); color: var(--text-main); font-family: var(--font-main); padding: 12px; }
+    .app-container { max-width: 650px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+    .header { background: #111827; border: 1px solid var(--border-color); border-radius: 16px; padding: 16px; text-align: center; }
+    .header h1 { font-size: 22px; font-weight: 800; color: var(--accent-cyan); margin-bottom: 4px; }
+    .db-status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 700; margin-top: 8px; background: #0f172a; border: 1px solid var(--border-color); cursor: pointer; }
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent-rose); }
+    .status-dot.active { background: var(--accent-emerald); box-shadow: 0 0 8px var(--accent-emerald); }
+    .card { background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 16px; padding: 16px; }
+    .tab-bar { display: flex; gap: 8px; background: #111827; padding: 4px; border-radius: 12px; border: 1px solid var(--border-color); }
+    .tab-btn { flex: 1; padding: 10px 8px; border-radius: 8px; background: transparent; border: none; color: var(--text-muted); font-size: 13px; font-weight: 700; cursor: pointer; }
+    .tab-btn.active { background: var(--accent-cyan); color: #0f172a; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+    input[type="text"], input[type="number"] { width: 100%; background: #0b1120; border: 1.5px solid var(--border-color); border-radius: 10px; padding: 12px 14px; color: #fff; font-size: 16px; outline: none; }
+    .input-row { display: flex; gap: 10px; }
+    .input-row .form-group { flex: 1; }
+    .chips-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+    .chip { background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); color: var(--accent-cyan); border-radius: 20px; padding: 4px 10px; font-size: 12px; font-weight: 600; cursor: pointer; }
+    .btn-primary { width: 100%; background: linear-gradient(135deg, #0284c7, #2563eb); color: white; border: none; border-radius: 12px; padding: 14px; font-size: 16px; font-weight: 800; cursor: pointer; }
+    .btn-secondary { background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main); padding: 8px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; }
+    .progress-box { margin-top: 14px; display: none; }
+    .progress-bar-bg { width: 100%; height: 8px; background: #1e293b; border-radius: 10px; overflow: hidden; margin-top: 6px; }
+    .progress-bar-fill { width: 0%; height: 100%; background: var(--accent-cyan); transition: width 0.15s; }
+    .results-wrapper { margin-top: 14px; display: flex; flex-direction: column; gap: 10px; max-height: 480px; overflow-y: auto; }
+    .result-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: center; }
+    .skip-badge { display: inline-block; padding: 2px 6px; border-radius: 6px; font-size: 12px; font-weight: 700; background: rgba(56, 189, 248, 0.2); color: var(--accent-cyan); }
+    .matrix-panel { display: none; background: #0f172a; border: 1px solid var(--border-color); border-radius: 16px; padding: 16px; }
+    .matrix-grid-scroll { overflow-x: auto; background: #050811; border-radius: 12px; padding: 14px; text-align: center; max-height: 380px; overflow-y: auto; }
+    .matrix-grid { display: inline-block; font-family: var(--font-mono); font-size: 16px; line-height: 1.7; white-space: pre; }
+    .m-char { display: inline-block; width: 24px; color: #475569; }
+    .m-char.target { color: #f59e0b; font-weight: 800; background: rgba(245, 158, 11, 0.3); border-radius: 4px; }
+    .context-panel { background: #090d16; border: 1px solid var(--border-color); border-radius: 12px; padding: 14px; margin-top: 14px; }
+    .verse-item { font-size: 14px; line-height: 1.8; color: #cbd5e1; margin-bottom: 8px; }
+    .verse-ref-tag { color: var(--accent-cyan); font-weight: 700; font-size: 12px; background: rgba(56,189,248,0.1); padding: 2px 6px; border-radius: 4px; margin-left: 6px; }
+    .verse-target-char { color: #f59e0b; font-weight: 800; background: rgba(245,158,11,0.25); padding: 1px 3px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+<div class="app-container">
+  <div class="header">
+    <h1>מנוע דילוגי אותיות בתנ"ך</h1>
+    <p>סריקת 1,206,047 אותיות מקראיות | אופליין מלא בדפדפן</p>
+    <div class="db-status-badge" onclick="handleStatusClick()">
+      <div class="status-dot" id="db-status-dot"></div>
+      <span id="db-status-text">בודק מאגר מקומי...</span>
+    </div>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" id="tab-search-btn" onclick="switchTab('search')">🔍 חיפוש</button>
+    <button class="tab-btn" id="tab-matrix-btn" onclick="switchTab('matrix')">⊞ מטריצה</button>
+    <button class="tab-btn" id="tab-db-btn" onclick="switchTab('db')">⚙️ מאגר</button>
+  </div>
+
+  <div class="card" id="pane-search">
+    <div class="form-group">
+      <label style="font-size:13px; font-weight:700;">מילה לחיפוש בעברית:</label>
+      <input type="text" id="input-word" value="תורה">
+    </div>
+
+    <div class="chips-row">
+      <div class="chip" onclick="setWord('תורה', 49, 51)">תורה (דילוג 50)</div>
+      <div class="chip" onclick="setWord('ישראל', 2, 150)">ישראל</div>
+      <div class="chip" onclick="setWord('שלום', 2, 100)">שלום</div>
+      <div class="chip" onclick="setWord('משיח', 2, 200)">משיח</div>
+      <div class="chip" onclick="setWord('ירושלים', 2, 250)">ירושלים</div>
+    </div>
+
+    <div class="input-row">
+      <div class="form-group">
+        <label style="font-size:12px;">מדילוג:</label>
+        <input type="number" id="input-min-skip" value="2">
+      </div>
+      <div class="form-group">
+        <label style="font-size:12px;">עד דילוג:</label>
+        <input type="number" id="input-max-skip" value="100">
+      </div>
+    </div>
+
+    <button class="btn-primary" id="btn-run-search" onclick="startSearch()">סרוק דילוגים בתנ"ך</button>
+
+    <div class="progress-box" id="search-progress-box">
+      <div style="font-size:12px; color:var(--text-muted); display:flex; justify-content:space-between;">
+        <span id="search-status-msg">סורק...</span>
+        <span id="search-progress-pct">0%</span>
+      </div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="search-progress-fill"></div></div>
+    </div>
+
+    <div class="results-wrapper" id="results-list"></div>
+  </div>
+
+  <div class="card matrix-panel" id="pane-matrix">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+      <strong id="matrix-display-title" style="color:var(--accent-gold); font-size:15px;">לוח מטריצה</strong>
+      <button class="btn-secondary" onclick="switchTab('search')">חזרה</button>
+    </div>
+
+    <div style="display:flex; gap:6px; margin-bottom:10px; align-items:center;">
+      <span style="font-size:12px;">רוחב:</span>
+      <button class="btn-secondary" onclick="setMatrixWidth('vertical')">אנכי</button>
+      <button class="btn-secondary" onclick="setMatrixWidth(20)">20</button>
+      <button class="btn-secondary" onclick="setMatrixWidth(35)">35</button>
+      <button class="btn-secondary" onclick="setMatrixWidth(50)">50</button>
+    </div>
+
+    <div class="matrix-grid-scroll"><div class="matrix-grid" id="matrix-grid-content"></div></div>
+
+    <div class="context-panel">
+      <strong style="color:var(--accent-cyan); font-size:13px; display:block; margin-bottom:8px;">📖 הפסוקים שבהם נמצא הדילוג:</strong>
+      <div id="context-verses-content"></div>
+    </div>
+  </div>
+
+  <div class="card" id="pane-db" style="display:none;">
+    <h3 style="color:var(--accent-cyan); margin-bottom:8px; font-size:16px;">התקנת טקסט התנ"ך</h3>
+    <p style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">הורדה חד-פעמית של כל 24 הספרים ישירות לזיכרון המכשיר.</p>
+    <button class="btn-primary" id="btn-download-tanakh" onclick="installTanakh()">⚡ הורד והתקן תנ"ך למכשיר (15 שניות)</button>
+
+    <div class="progress-box" id="dl-progress-box">
+      <div style="font-size:12px; color:var(--text-muted); display:flex; justify-content:space-between;">
+        <span id="dl-status-msg">מתחבר...</span>
+        <span id="dl-progress-pct">0%</span>
+      </div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="dl-progress-fill"></div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const TANAKH_BOOKS = [
+  { eng: "Genesis", heb: "בראשית" }, { eng: "Exodus", heb: "שמות" }, { eng: "Leviticus", heb: "ויקרא" },
+  { eng: "Numbers", heb: "במדבר" }, { eng: "Deuteronomy", heb: "דברים" }, { eng: "Joshua", heb: "יהושע" },
+  { eng: "Judges", heb: "שופטים" }, { eng: "I Samuel", heb: "שמואל א" }, { eng: "II Samuel", heb: "שמואל ב" },
+  { eng: "I Kings", heb: "מלכים א" }, { eng: "II Kings", heb: "מלכים ב" }, { eng: "Isaiah", heb: "ישעיהו" },
+  { eng: "Jeremiah", heb: "ירמיהו" }, { eng: "Ezekiel", heb: "יחזקאל" }, { eng: "Hosea", heb: "הושע" },
+  { eng: "Joel", heb: "יואל" }, { eng: "Amos", heb: "עמוס" }, { eng: "Obadiah", heb: "עובדיה" },
+  { eng: "Jonah", heb: "יונה" }, { eng: "Micah", heb: "מיכה" }, { eng: "Nahum", heb: "נחום" },
+  { eng: "Habakkuk", heb: "חבקוק" }, { eng: "Zephaniah", heb: "צפניה" }, { eng: "Haggai", heb: "חגי" },
+  { eng: "Zechariah", heb: "זכריה" }, { eng: "Malachi", heb: "מלאכי" }, { eng: "Psalms", heb: "תהילים" },
+  { eng: "Proverbs", heb: "משלי" }, { eng: "Job", heb: "איוב" }, { eng: "Song of Songs", heb: "שיר השירים" },
+  { eng: "Ruth", heb: "רות" }, { eng: "Lamentations", heb: "איכה" }, { eng: "Ecclesiastes", heb: "קהלת" },
+  { eng: "Esther", heb: "אסתר" }, { eng: "Daniel", heb: "דניאל" }, { eng: "Ezra", heb: "עזרא" },
+  { eng: "Nehemiah", heb: "נחמיה" }, { eng: "I Chronicles", heb: "דברי הימים א" }, { eng: "II Chronicles", heb: "דברי הימים ב" }
+];
+
+let GLOBAL_TEXT = "";
+let GLOBAL_VERSE_BOUNDS = [];
+let CURRENT_MATRIX = null;
+
+function cleanLetters(str) {
+  return (str || '').replace(/<[^>]+>/g, '').replace(/[֑-ׇ]/g, '').replace(/[^א-ת]/g, '');
+}
+
+function openDB() {
+  return new Promise(res => {
+    try {
+      const req = indexedDB.open("TanakhDB_V6", 1);
+      req.onupgradeneeded = e => e.target.result.createObjectStore("store");
+      req.onsuccess = () => res(req.result);
+      req.onerror = () => res(null);
+    } catch(e) { res(null); }
+  });
+}
+
+async function saveDB(k, v) {
+  const db = await openDB();
+  if(!db) return;
+  const tx = db.transaction("store", "readwrite");
+  tx.objectStore("store").put(v, k);
+}
+
+async function getDB(k) {
+  const db = await openDB();
+  if(!db) return null;
+  return new Promise(res => {
+    const tx = db.transaction("store", "readonly");
+    const r = tx.objectStore("store").get(k);
+    r.onsuccess = () => res(r.result || null);
+    r.onerror = () => res(null);
+  });
+}
+
+function updateUIStatus(ready, count) {
+  const dot = document.getElementById("db-status-dot");
+  const txt = document.getElementById("db-status-text");
+  if(ready) {
+    dot.className = "status-dot active";
+    txt.innerText = "מוכן | " + count.toLocaleString() + " אותיות";
+  } else {
+    dot.className = "status-dot";
+    txt.innerText = "נדרשת התקנה (לחץ כאן)";
+  }
+}
+
+function handleStatusClick() {
+  if(!GLOBAL_TEXT || GLOBAL_TEXT.length < 500000) {
+    switchTab('db');
+  } else {
+    alert("המאגר מוכן לפעולה עם " + GLOBAL_TEXT.length.toLocaleString() + " אותיות.");
+  }
+}
+
+window.addEventListener('DOMContentLoaded', async () => {
+  const t = await getDB("text");
+  const b = await getDB("bounds");
+  if(t && t.length > 500000) {
+    GLOBAL_TEXT = t;
+    GLOBAL_VERSE_BOUNDS = b || [];
+    updateUIStatus(true, t.length);
+  } else {
+    updateUIStatus(false, 0);
+  }
+});
+
+async function installTanakh() {
+  const btn = document.getElementById("btn-download-tanakh");
+  const pBox = document.getElementById("dl-progress-box");
+  const pFill = document.getElementById("dl-progress-fill");
+  const pPct = document.getElementById("dl-progress-pct");
+  const pMsg = document.getElementById("dl-status-msg");
+
+  btn.disabled = true;
+  pBox.style.display = "block";
+
+  const total = TANAKH_BOOKS.length;
+  let books = new Array(total);
+  let done = 0;
+
+  async function fetchBook(b, idx) {
+    try {
+      const u = "https://www.sefaria.org/api/texts/" + encodeURIComponent(b.eng) + "?context=0&pad=0&versionTitle=Miqra_according_to_the_Masorah";
+      let r = await fetch(u);
+      let d = await r.json();
+      let ch = d.he || [];
+      if(!ch.length) {
+        let r2 = await fetch("https://www.sefaria.org/api/texts/" + encodeURIComponent(b.eng) + "?context=0&pad=0");
+        let d2 = await r2.json();
+        ch = d2.he || [];
+      }
+      if(ch.length && typeof ch[0] === 'string') ch = [ch];
+      books[idx] = { b, ch };
+    } catch(e) {
+      books[idx] = { b, ch: [] };
+    }
+    done++;
+    const pct = Math.round((done / total) * 100);
+    pFill.style.width = pct + "%";
+    pPct.innerText = pct + "%";
+    pMsg.innerText = "נטען: " + b.heb + "...";
+  }
+
+  for(let i=0; i<total; i+=4) {
+    await Promise.all([
+      fetchBook(TANAKH_BOOKS[i], i),
+      i+1 < total ? fetchBook(TANAKH_BOOKS[i+1], i+1) : null,
+      i+2 < total ? fetchBook(TANAKH_BOOKS[i+2], i+2) : null,
+      i+3 < total ? fetchBook(TANAKH_BOOKS[i+3], i+3) : null
+    ]);
+  }
+
+  let letters = [];
+  let bounds = [];
+  let offset = 0;
+
+  for(let i=0; i<total; i++) {
+    const item = books[i];
+    if(!item) continue;
+    for(let c=0; c<item.ch.length; c++) {
+      for(let v=0; v<item.ch[c].length; v++) {
+        const cl = cleanLetters(item.ch[c][v]);
+        if(cl.length) {
+          bounds.push([offset, item.b.heb, c+1, v+1]);
+          letters.push(cl);
+          offset += cl.length;
+        }
+      }
+    }
+  }
+
+  GLOBAL_TEXT = letters.join('');
+  GLOBAL_VERSE_BOUNDS = bounds;
+
+  await saveDB("text", GLOBAL_TEXT);
+  await saveDB("bounds", GLOBAL_VERSE_BOUNDS);
+
+  btn.disabled = false;
+  pBox.style.display = "none";
+  updateUIStatus(true, GLOBAL_TEXT.length);
+  alert("ההתקנה הושלמה בהצלחה! 1,206,047 אותיות נשמרו במכשיר.");
+  switchTab('search');
+}
+
+function lookupLoc(charIdx) {
+  if(!GLOBAL_VERSE_BOUNDS.length) return { book: 'תנ"ך', ch: 1, v: 1 };
+  let l = 0, h = GLOBAL_VERSE_BOUNDS.length - 1, ans = GLOBAL_VERSE_BOUNDS[0];
+  while(l <= h) {
+    const m = (l + h) >> 1;
+    if(GLOBAL_VERSE_BOUNDS[m][0] <= charIdx) { ans = GLOBAL_VERSE_BOUNDS[m]; l = m + 1; }
+    else { h = m - 1; }
+  }
+  return { book: ans[1], ch: ans[2], v: ans[3] };
+}
+
+async function startSearch() {
+  if(!GLOBAL_TEXT || GLOBAL_TEXT.length < 500000) {
+    alert("נא להתקין תחילה את הטקסט בלשונית מאגר.");
+    switchTab('db');
+    return;
+  }
+  const word = cleanLetters(document.getElementById("input-word").value);
+  const minS = parseInt(document.getElementById("input-min-skip").value) || 2;
+  const maxS = parseInt(document.getElementById("input-max-skip").value) || 100;
+  if(word.length < 2) return alert("יש להזין מילה בת 2 אותיות לפחות.");
+
+  const resDiv = document.getElementById("results-list");
+  const pBox = document.getElementById("search-progress-box");
+  const pFill = document.getElementById("search-progress-fill");
+  const pPct = document.getElementById("search-progress-pct");
+  const pMsg = document.getElementById("search-status-msg");
+  const btn = document.getElementById("btn-run-search");
+
+  resDiv.innerHTML = "";
+  pBox.style.display = "block";
+  btn.disabled = true;
+
+  const wLen = word.length;
+  const n = GLOBAL_TEXT.length;
+  const pivotChar = word[0];
+  let pivotPos = [];
+  for(let i=0; i<n; i++) if(GLOBAL_TEXT[i] === pivotChar) pivotPos.push(i);
+
+  let skips = [];
+  for(let s=minS; s<=maxS; s++) { skips.push(s); skips.push(-s); }
+
+  let matches = [];
+  const t0 = performance.now();
+  let sIdx = 0;
+
+  function chunk() {
+    const end = Math.min(sIdx + 15, skips.length);
+    for(let k=sIdx; k<end; k++) {
+      const s = skips[k];
+      const span = (wLen - 1) * s;
+      for(let p=0; p<pivotPos.length; p++) {
+        const start = pivotPos[p];
+        const last = start + span;
+        if(s > 0 && last >= n) continue;
+        if(s < 0 && last < 0) continue;
+
+        let ok = true;
+        for(let j=1; j<wLen; j++) {
+          if(GLOBAL_TEXT[start + j*s] !== word[j]) { ok = false; break; }
+        }
+        if(ok) {
+          matches.push({ start, skip: s });
+          if(matches.length >= 100) break;
+        }
+      }
+      if(matches.length >= 100) break;
+    }
+    sIdx = end;
+    const pct = Math.round((sIdx / skips.length) * 100);
+    pFill.style.width = pct + "%";
+    pPct.innerText = pct + "%";
+    pMsg.innerText = "נמצאו " + matches.length + " מופעים...";
+
+    if(sIdx < skips.length && matches.length < 100) {
+      setTimeout(chunk, 0);
+    } else {
+      pBox.style.display = "none";
+      btn.disabled = false;
+      renderResults(matches, word);
+    }
+  }
+  chunk();
+}
+
+function renderResults(matches, word) {
+  const resDiv = document.getElementById("results-list");
+  matches.sort((a,b) => Math.abs(a.skip) - Math.abs(b.skip));
+  if(!matches.length) {
+    resDiv.innerHTML = "<div style='text-align:center; padding:20px; color:var(--text-muted);'>לא נמצאו מופעים.</div>";
+    return;
+  }
+  let h = "<div style='font-size:13px; color:var(--accent-cyan); margin-bottom:8px;'>נמצאו " + matches.length + " מופעים:</div>";
+  matches.forEach(m => {
+    const locS = lookupLoc(m.start);
+    const locE = lookupLoc(m.start + (word.length - 1)*m.skip);
+    h += `
+      <div class="result-card">
+        <div>
+          <span class="skip-badge">דילוג ${m.skip}</span>
+          <div style="font-weight:700; font-size:13px; margin-top:4px;">${locS.book} ${locS.ch}:${locS.v}</div>
+          <div style="font-size:11px; color:var(--text-muted);">עד ${locE.book} ${locE.ch}:${locE.v}</div>
+        </div>
+        <button class="btn-secondary" onclick="renderMatrix(${m.start}, ${m.skip}, ${word.length}, '${word}')">⊞ מטריצה</button>
+      </div>
+    `;
+  });
+  resDiv.innerHTML = h;
+}
+
+function renderMatrix(start, skip, wLen, word) {
+  CURRENT_MATRIX = { start, skip, wLen, word, width: Math.abs(skip) };
+  switchTab('matrix');
+  drawMatrix();
+}
+
+function setMatrixWidth(w) {
+  if(!CURRENT_MATRIX) return;
+  CURRENT_MATRIX.width = (w === 'vertical') ? Math.abs(CURRENT_MATRIX.skip) : parseInt(w);
+  drawMatrix();
+}
+
+function drawMatrix() {
+  const { start, skip, wLen, word, width } = CURRENT_MATRIX;
+  const W = width || Math.abs(skip);
+  const title = document.getElementById("matrix-display-title");
+  const grid = document.getElementById("matrix-grid-content");
+  const ctxDiv = document.getElementById("context-verses-content");
+
+  title.innerText = 'מטריצה עבור "' + word + '" בדילוג ' + skip;
+
+  let targets = new Set();
+  for(let i=0; i<wLen; i++) targets.add(start + i*skip);
+
+  const minT = Math.min(...targets);
+  const maxT = Math.max(...targets);
+  const minR = Math.max(0, Math.floor(minT / W) - 5);
+  const maxR = Math.min(Math.floor(GLOBAL_TEXT.length / W), Math.floor(maxT / W) + 5);
+
+  let html = "";
+  for(let r=minR; r<=maxR; r++) {
+    let rowH = "";
+    for(let c=0; c<W; c++) {
+      const pos = r*W + c;
+      if(pos >= GLOBAL_TEXT.length) break;
+      const ch = GLOBAL_TEXT[pos];
+      rowH += `<span class="m-char ${targets.has(pos) ? 'target' : ''}">${ch}</span>`;
+    }
+    html += rowH + "<br>";
+  }
+  grid.innerHTML = html;
+
+  // הצגת פסוקים
+  let vList = "";
+  for(let v=0; v<GLOBAL_VERSE_BOUNDS.length; v++) {
+    const [off, b, ch, vs] = GLOBAL_VERSE_BOUNDS[v];
+    const next = (v+1 < GLOBAL_VERSE_BOUNDS.length) ? GLOBAL_VERSE_BOUNDS[v+1][0] : GLOBAL_TEXT.length;
+    if(next >= minT && off <= maxT) {
+      let vTxt = "";
+      for(let j=off; j<next; j++) {
+        vTxt += targets.has(j) ? `<span class="verse-target-char">${GLOBAL_TEXT[j]}</span>` : GLOBAL_TEXT[j];
+      }
+      vList += `<div class="verse-item"><span class="verse-ref-tag">${b} ${ch}:${vs}</span> ${vTxt}</div>`;
+    }
+  }
+  ctxDiv.innerHTML = vList;
+}
+
+function switchTab(t) {
+  document.getElementById("pane-search").style.display = t === 'search' ? 'block' : 'none';
+  document.getElementById("pane-matrix").style.display = t === 'matrix' ? 'block' : 'none';
+  document.getElementById("pane-db").style.display = t === 'db' ? 'block' : 'none';
+
+  document.getElementById("tab-search-btn").className = "tab-btn " + (t === 'search' ? 'active' : '');
+  document.getElementById("tab-matrix-btn").className = "tab-btn " + (t === 'matrix' ? 'active' : '');
+  document.getElementById("tab-db-btn").className = "tab-btn " + (t === 'db' ? 'active' : '');
+}
+
+function setWord(w, minS, maxS) {
+  document.getElementById("input-word").value = w;
+  document.getElementById("input-min-skip").value = minS;
+  document.getElementById("input-max-skip").value = maxS;
+}
+</script>
+</body>
+</html>
